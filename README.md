@@ -22,6 +22,23 @@ System.AccessViolationException: Attempted to read or write protected memory. Th
 ```
 When the `AccessViolationException` happen Revit crashes.
 
+### Workaround
+
+The only workaround is to use the `FilteredElementCollector(Document document, ElementId viewId)` with a filter method before using the `FilteredElementCollector(Document hostDocument, ElementId viewId, ElementId linkId)`.
+
+```C#
+public IList<Element> GetElementInViewLink(Document document, View view, RevitLinkInstance revitLinkInstance)
+{
+    // This `FilteredElementCollector` is created to make the exception not happening when using viewId and linkId. A filter is required to be added.
+    new FilteredElementCollector(document, view.Id)
+        .WhereElementIsNotElementType();
+
+    return new FilteredElementCollector(document, view.Id, revitLinkInstance.Id)
+        .WhereElementIsNotElementType()
+        .ToElements();
+}
+```
+
 ## Revit API Forum
 
 * [Revit 2025.4 is crashing if I use results of FilteredElementCollector](https://forums.autodesk.com/t5/revit-api-forum/revit-2025-4-is-crashing-if-i-use-results-of/td-p/13892613)
